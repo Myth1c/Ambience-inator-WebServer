@@ -2,12 +2,33 @@
 
 import asyncio
 from aiohttp import web
-import aiohttp_cors
 import signal
 
 from web.ws_handlers import websocket_handler, broadcast_state_handler, broadcast_playback_state
 
 global AUTH_KEY
+
+async def handle_options(request):
+    """Handle CORS preflight OPTIONS requests."""
+    return web.Response(status=200, headers={
+        "Access-Control-Allow-Origin": "https://myth1c.github.io",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Credentials": "true"
+    })
+
+@web.middleware
+async def cors_middleware(request, handler):
+    """Add CORS headers to every response."""
+    if request.method == "OPTIONS":
+        return await handle_options(request)
+
+    response = await handler(request)
+    response.headers["Access-Control-Allow-Origin"] = "https://myth1c.github.io"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    return response
 
 @web.middleware
 async def auth_middleware(request, handler):
@@ -24,23 +45,16 @@ async def auth_middleware(request, handler):
     return web.json_response({"ok": False, "error": "Unauthorized"}, status=401)
 
 def create_app():
-    app = web.Application(middlewares=[auth_middleware])
-    
-    # ---- CORS SETUP ----
-    cors = aiohttp_cors.setup(app, defaults={
-        "https://myth1c.github.io": aiohttp_cors.ResourceOptions(
-            allow_credentials=True,
-            expose_headers="*",
-            allow_headers="*",
-            allow_methods=["GET", "POST", "OPTIONS"],
-        )
-    })
-    # ---------------------
+    app = web.Application(middlewares=[cors_middleware, auth_middleware])
+        
+    # === Static + Page Routes ===
+    app.router.add_get("/", lambda r: web.Response(text="Ambience-inator backend OK"))
+    app.router.add_get("/setup", lambda r: web.Response(text="setup.html placeholder"))
+    app.router.add_get("/edit", lambda r: web.Response(text="edit.html placeholder"))
+    app.router.add_get("/play", lambda r: web.Response(text="playback.html placeholder"))
+    app.router.add_get("/auth", lambda r: web.Response(text="auth.html placeholder"))
     
     # === API Routes ===
-    app.router.add_get("/ws", websocket_handler)
-    
-    # Endpoint to verify the key
     async def auth_check(request):
         data = await request.json()
         if data.get("key") == AUTH_KEY:
@@ -48,23 +62,13 @@ def create_app():
             response.set_cookie("auth", AUTH_KEY, httponly=True, max_age=86400)
             return response
         return web.json_response({"ok": False}, status=401)
-    
+        
     app.router.add_post("/auth_check", auth_check)
-   
-    # State broadcast endpoint
+    app.router.add_get("/ws", websocket_handler)
     app.router.add_post("/broadcast_state", broadcast_state_handler)
     
-    # Root page for health check / debugging
-    async def root_handler(request):
-        return web.Response(
-            text=(
-                "Ambience-inator Web API is running.\n"
-                "Frontend: https://myth1c.github.io/ambience-inator/"
-            ),
-            content_type="text/plain"
-        )
-    
-    app.router.add_get("/", root_handler)
+    # Allow options globally
+    app.router.add_route("OPTIONS", "/{tail:.*}", handle_options)
     
     return app
 
