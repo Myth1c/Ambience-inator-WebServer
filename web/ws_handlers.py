@@ -5,14 +5,8 @@ import aiohttp
 import json
 import asyncio
 
-BOT_IPC_URL = "http://ambience-bot:8765/bot_command"
 connections = set()
 connected_bots = set()
-bot_command_handler = None
-
-def set_bot_command_handler(handler):
-    global bot_command_handler
-    bot_command_handler = handler
 
 async def websocket_handler(request):
     ws = web.WebSocketResponse()
@@ -27,24 +21,14 @@ async def websocket_handler(request):
                 data = json.loads(msg.data)
                 print("[WS] Received: ", data)
                 
-                
-                if bot_command_handler:
-                    result = await bot_command_handler(data, ws)
-                    if result is None:
-                        result = {"ack": True, "received": data}            
-                    await ws.send_json(result)
-                else:
-                    # Just echo for now if no valid command
-                    await ws.send_json({"ack": True, "received": data})
-                
+                # Forward client command to bots
+                await forward_to_bots(data)                
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 print("[WS] Error: ", ws.exception())
-                
-                
+                                
     finally:
         connections.remove(ws)
         print("[WS] client disconnected")
-        
         
     return ws
 
@@ -78,18 +62,6 @@ async def broadcast_playback_state(get_state_func):
     if stale_connections:
         print(f"[WS] Cleaned up {len(stale_connections)} stale connection(s)")
 
-async def send_bot_command(command, args=None):
-    try:
-        async with aiohttp.ClientSession() as session:
-            payload = {"command": command, "args": args or {}}
-            async with session.post(BOT_IPC_URL, json=payload) as resp:
-                data = await resp.json()
-                print(f"[WEB→BOT] Sent {command} → got {data}")
-                return data
-    except Exception as e:
-        print(f"[WEB→BOT] Error sending command {command}: {e}")
-        return {"ok": False, "error": str(e)}
-    
 async def broadcast_state_handler(request):
     """Handle POSTs from the bot process to fan out updates to WS clients."""
     data = await request.json()
@@ -115,17 +87,19 @@ async def ipc_bot_handler(request):
 
     connected_bots.add(ws)
     print("[WEB] Bot connected via IPC", flush=True)
-
-    # Immediately acknowledge the bot so you see two-way activity
-    try:
-        await ws.send_json({"type": "server_ack", "message": "Connected to Render backend"})
-    except Exception as e:
-        print("[WEB] Failed to send ack:", e, flush=True)
+    await ws.send_json({"type": "server_ack", "message": "Connected to Render backend"})
 
     try:
         async for msg in ws:
             if msg.type == web.WSMsgType.TEXT:
                 print("[WEB] From bot:", msg.data, flush=True)
+                try:
+                    payload = json.loads(msg.data)
+                except json.JSONDecodeError:
+                    continue
+                
+                await forward_to_clients(payload)
+                
             elif msg.type == web.WSMsgType.ERROR:
                 print("[WEB] IPC WS error:", ws.exception(), flush=True)
     finally:
@@ -133,3 +107,19 @@ async def ipc_bot_handler(request):
         print("[WEB] Bot disconnected", flush=True)
 
     return ws
+
+
+async def forward_to_bots(payload):
+    for ws in list(connected_bots):
+        try:
+            await ws.send_str(json.dumps(payload))
+        except Exception:
+            connected_bots.discard(ws)
+            
+async def forward_to_clients(payload):
+    for ws in list(connections):
+        try:
+            await ws.send_str(json.dumps(payload))
+        except Exception:
+            connections.discard(ws)
+            
