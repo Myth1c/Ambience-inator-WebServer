@@ -7,15 +7,12 @@ import signal
 
 from web.ws_handlers import websocket_handler, broadcast_state_handler, broadcast_playback_state
 
-BASE_DIR = pathlib.Path(__file__).parent.parent # root folder
-PUBLIC_DIR = BASE_DIR / "ui" / "public"
-
 global AUTH_KEY
 
 @web.middleware
 async def auth_middleware(request, handler):
-    # Allow static files, websocket, and auth endpoints
-    if request.path.startswith("/public") or request.path in ("/auth", "/auth_check", "/ws", "/status"):
+    # Allow these paths to bypass the authentication step of the site
+    if request.path in ("/auth", "/auth_check", "/ws", "/status", "/broadcast_state"):
         return await handler(request)
 
     # Check if already authenticated
@@ -24,19 +21,13 @@ async def auth_middleware(request, handler):
         return await handler(request)
 
     # Otherwise, redirect to /auth
-    raise web.HTTPFound("/auth")
+    return web.json_response({"ok": False, "error": "Unauthorized"}, status=401)
 
 def create_app():
     app = web.Application(middlewares=[auth_middleware])
     
-    # Web UI routes
-    app.router.add_get("/", lambda r: web.FileResponse( PUBLIC_DIR / "index.html"))
-    app.router.add_get("/setup", lambda r: web.FileResponse(PUBLIC_DIR / "setup.html"))
-    app.router.add_get("/edit", lambda r: web.FileResponse(PUBLIC_DIR / "edit.html"))
-    app.router.add_get("/play", lambda r: web.FileResponse(PUBLIC_DIR / "playback.html"))
-    app.router.add_get("/auth", lambda r: web.FileResponse(PUBLIC_DIR / "auth.html"))
-    app.router.add_static("/public/", path=PUBLIC_DIR, name="static")
-    
+    # === API Routes
+    app.router.add_get("/ws", websocket_handler)
     
     # Endpoint to verify the key
     async def auth_check(request):
@@ -47,12 +38,22 @@ def create_app():
             return response
         return web.json_response({"ok": False}, status=401)
     
-    # WebSocket route
-    app.router.add_get("/ws", websocket_handler)
-    
-    
     app.router.add_post("/auth_check", auth_check)
+   
+    # State broadcast endpoint
     app.router.add_post("/broadcast_state", broadcast_state_handler)
+    
+    # Root page for health check / debugging
+    async def root_handler(request):
+        return web.Response(
+            text=(
+                "Ambience-inator Web API is running.\n"
+                "Frontend: https://myth1c.github.io/ambience-inator/"
+            ),
+            content_type="text/plain"
+        )
+    
+    app.router.add_get("/", root_handler)
     
     return app
 
@@ -61,8 +62,9 @@ async def start_server_async(host="0.0.0.0", port=8080, key=None):
     global AUTH_KEY
     AUTH_KEY = key
 
-    print(f"Auth Key set to {AUTH_KEY}")
+    print(f"[WEB-RUNNER] Auth Key set to {AUTH_KEY}")
     app = create_app()
+    
     runner = web.AppRunner(app)
     await runner.setup()
 
@@ -71,25 +73,26 @@ async def start_server_async(host="0.0.0.0", port=8080, key=None):
 
     print(f"Web server running on http://{host}:{port}")
 
-    # --- graceful shutdown handling ---
+    # === Graceful Shutdown Handling ===
     stop_event = asyncio.Event()
 
     def _handle_signal():
         print("[WEB] Shutdown signal received.")
         stop_event.set()
 
-    # Register signals (works on Linux/Mac; on Windows Docker, it’s handled via Docker stop)
+    # Register signals
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGINT, signal.SIGTERM):
         try:
             loop.add_signal_handler(sig, _handle_signal)
         except NotImplementedError:
-            # Signal handlers not available (Windows)
             pass
 
     # Wait for stop event (until container stop)
     await stop_event.wait()
-
     print("[WEB] Shutting down web server...")
+    
     await runner.cleanup()
     print("[WEB] Server closed cleanly.")
+    
+    
