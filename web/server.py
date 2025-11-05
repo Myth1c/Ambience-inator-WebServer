@@ -4,7 +4,7 @@ import asyncio
 from aiohttp import web
 import signal
 
-from web.ws_handlers import websocket_handler, broadcast_state_handler, ipc_bot_handler
+from web.ws_handlers import websocket_handler, ipc_bot_handler
 
 global AUTH_KEY
 
