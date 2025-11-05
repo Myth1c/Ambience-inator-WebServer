@@ -4,7 +4,7 @@ import asyncio
 from aiohttp import web
 import signal
 
-from web.ws_handlers import websocket_handler, ipc_bot_handler
+from web.ws_handlers import websocket_handler, ipc_bot_handler, heartbeat_handler
 
 global AUTH_KEY
 
@@ -33,7 +33,7 @@ async def cors_middleware(request, handler):
 @web.middleware
 async def auth_middleware(request, handler):
     # Allow these paths to bypass the authentication step of the site
-    if request.path in ("/auth", "/auth_check", "/ws", "/status", "/ipc"):
+    if request.path in ("/auth", "/auth_check", "/ws", "/status", "/ipc", "/heartbeat"):
         return await handler(request)
 
     # Check if already authenticated
@@ -81,7 +81,7 @@ def create_app():
     # --- WebSocket endpoints ---
     app.router.add_get("/ws", websocket_handler)
     app.router.add_get("/ipc", ipc_bot_handler)
-    
+    app.router.add_get("/heartbeat", heartbeat_handler)
     
     return app
 

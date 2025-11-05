@@ -46,6 +46,9 @@ async def ipc_bot_handler(request):
                 print("[WEB] From bot:", msg.data, flush=True)
                 try:
                     payload = json.loads(msg.data)
+                    if payload.get("type") == "heartbeat_ack":
+                        print("[WEB] Bot heartbeat ack")
+                        continue
                 except json.JSONDecodeError:
                     continue
                 
@@ -73,3 +76,22 @@ async def forward_to_clients(payload):
         except Exception:
             connections.discard(ws)
             
+async def heartbeat_handler(request):
+    """Client heartbeat: checks if webserver and bot are alive."""
+    bot_ok = False
+    
+    # Try pinging the bot via IP
+    try:
+        for ws in list(connected_bots):
+            if ws.closed:
+                continue
+            await ws.send_json({"type": "heartbeat_check"})
+            bot_ok = True
+            break
+    except Exception as e:
+        print("[HEARTBEAT] IPC ping failed: ", e)
+        
+    return web.json_response({
+        "ok": True,
+        "bot_connected": bot_ok
+    })
