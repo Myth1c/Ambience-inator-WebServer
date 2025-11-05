@@ -1,0 +1,5 @@
+discord.py[voice]>=2.4.0
+PyNaCl
+yt-dlp>=2024.10.7
+numpy
+aiohttp
