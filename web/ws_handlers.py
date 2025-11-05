@@ -112,17 +112,24 @@ async def broadcast_state_handler(request):
 async def ipc_bot_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
-    
+
     connected_bots.add(ws)
-    print("[WEB] Bot connected via IPC")
-    
+    print("[WEB] Bot connected via IPC", flush=True)
+
+    # Immediately acknowledge the bot so you see two-way activity
+    try:
+        await ws.send_json({"type": "server_ack", "message": "Connected to Render backend"})
+    except Exception as e:
+        print("[WEB] Failed to send ack:", e, flush=True)
+
     try:
         async for msg in ws:
             if msg.type == web.WSMsgType.TEXT:
-                print("[WEB] From bot:", msg.data)
-                
+                print("[WEB] From bot:", msg.data, flush=True)
+            elif msg.type == web.WSMsgType.ERROR:
+                print("[WEB] IPC WS error:", ws.exception(), flush=True)
     finally:
-        connected_bots.remove(ws)
-        print("[WEB] Bot disconnected")
-        
+        connected_bots.discard(ws)
+        print("[WEB] Bot disconnected", flush=True)
+
     return ws
