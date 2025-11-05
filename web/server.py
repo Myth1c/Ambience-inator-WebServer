@@ -5,7 +5,7 @@ from aiohttp import web
 import pathlib
 import signal
 
-from ws_handlers import websocket_handler, broadcast_state_handler, broadcast_playback_state
+from web.ws_handlers import websocket_handler, broadcast_state_handler, broadcast_playback_state
 
 BASE_DIR = pathlib.Path(__file__).parent.parent # root folder
 PUBLIC_DIR = BASE_DIR / "ui" / "public"

@@ -1,4 +1,4 @@
-from ws_handlers import set_bot_command_handler, send_bot_command, broadcast_playback_state
+from web.ws_handlers import set_bot_command_handler, send_bot_command, broadcast_playback_state
 
 async def handle_ws_command(data, ws):
     command = data.get("command")
