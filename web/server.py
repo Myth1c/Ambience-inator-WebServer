@@ -2,7 +2,7 @@
 
 import asyncio
 from aiohttp import web
-import pathlib
+import aiohttp_cors
 import signal
 
 from web.ws_handlers import websocket_handler, broadcast_state_handler, broadcast_playback_state
@@ -26,7 +26,18 @@ async def auth_middleware(request, handler):
 def create_app():
     app = web.Application(middlewares=[auth_middleware])
     
-    # === API Routes
+    # ---- CORS SETUP ----
+    cors = aiohttp_cors.setup(app, defaults={
+        "https://myth1c.github.io": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+            allow_methods=["GET", "POST", "OPTIONS"],
+        )
+    })
+    # ---------------------
+    
+    # === API Routes ===
     app.router.add_get("/ws", websocket_handler)
     
     # Endpoint to verify the key
