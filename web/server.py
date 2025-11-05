@@ -56,10 +56,14 @@ def create_app():
     
     # === API Routes ===
     async def auth_check(request):
+        cookie = request.cookies.get("auth")
+        if cookie == AUTH_KEY:
+            return web.json_response({"ok": True})
+
         try:
             data = await request.json()
         except Exception:
-            return web.json_response({"ok": False, "error": "Invalid JSON"}, status=400)
+            data = {}
 
         if data.get("key") == AUTH_KEY:
             response = web.json_response({"ok": True})
