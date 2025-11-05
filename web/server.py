@@ -4,7 +4,7 @@ import asyncio
 from aiohttp import web
 import signal
 
-from web.ws_handlers import websocket_handler, broadcast_state_handler, broadcast_playback_state
+from web.ws_handlers import websocket_handler, broadcast_state_handler, ipc_bot_handler
 
 global AUTH_KEY
 
@@ -83,6 +83,7 @@ def create_app():
     app.router.add_post("/auth_check", auth_check)
     app.router.add_get("/ws", websocket_handler)
     app.router.add_post("/broadcast_state", broadcast_state_handler)
+    app.router.add_get("/ipc", ipc_bot_handler)
     
     # Allow options globally
     app.router.add_route("OPTIONS", "/{tail:.*}", handle_options)

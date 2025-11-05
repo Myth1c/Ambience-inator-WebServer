@@ -7,6 +7,7 @@ import asyncio
 
 BOT_IPC_URL = "http://ambience-bot:8765/bot_command"
 connections = set()
+connected_bots = set()
 bot_command_handler = None
 
 def set_bot_command_handler(handler):
@@ -107,3 +108,21 @@ async def broadcast_state_handler(request):
     for ws in stale:
         connections.discard(ws)
     return web.Response(text="OK")
+
+async def ipc_bot_handler(request):
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+    
+    connected_bots.add(ws)
+    print("[WEB] Bot connected via IPC")
+    
+    try:
+        async for msg in ws:
+            if msg.type == web.WSMsgType.TEXT:
+                print("[WEB] From bot:", msg.data)
+                
+    finally:
+        connected_bots.remove(ws)
+        print("[WEB] Bot disconnected")
+        
+    return ws
