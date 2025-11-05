@@ -33,7 +33,7 @@ async def cors_middleware(request, handler):
 @web.middleware
 async def auth_middleware(request, handler):
     # Allow these paths to bypass the authentication step of the site
-    if request.path in ("/auth", "/auth_check", "/ws", "/status", "/broadcast_state"):
+    if request.path in ("/auth", "/auth_check", "/ws", "/status", "/broadcast_state", "/ipc"):
         return await handler(request)
 
     # Check if already authenticated
