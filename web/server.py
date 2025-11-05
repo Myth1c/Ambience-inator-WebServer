@@ -56,11 +56,24 @@ def create_app():
     
     # === API Routes ===
     async def auth_check(request):
-        data = await request.json()
+        try:
+            data = await request.json()
+        except Exception:
+            return web.json_response({"ok": False, "error": "Invalid JSON"}, status=400)
+
         if data.get("key") == AUTH_KEY:
             response = web.json_response({"ok": True})
-            response.set_cookie("auth", AUTH_KEY, httponly=True, max_age=86400)
+            response.set_cookie(
+                "auth",
+                AUTH_KEY,
+                httponly=True,
+                secure=True,
+                samesite="None",
+                max_age=86400,
+                path="/"
+            )
             return response
+
         return web.json_response({"ok": False}, status=401)
         
     app.router.add_post("/auth_check", auth_check)
