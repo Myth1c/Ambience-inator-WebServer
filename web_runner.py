@@ -3,7 +3,6 @@
 import asyncio
 import os
 from web.server import start_server_async
-from web.handlers import handle_ws_command # ensures it registers with ws_handlers
 
 async def main():
     print("[WEB-RUNNER] Starting Ambience-inator Web Server...")
