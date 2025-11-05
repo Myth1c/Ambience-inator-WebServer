@@ -3,4 +3,3 @@ PyNaCl
 yt-dlp>=2024.10.7
 numpy
 aiohttp
-aiohttp_cors
