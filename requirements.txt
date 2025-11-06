@@ -1,5 +1,11 @@
-discord.py[voice]>=2.4.0
-PyNaCl
-yt-dlp>=2024.10.7
-numpy
+# Core web server
 aiohttp
+asyncio
+
+# Templates and embed rendering
+jinja2
+playwright
+pyee
+
+# HTTP helpers / optional
+requests
