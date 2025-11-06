@@ -22,6 +22,8 @@ env = Environment(
     autoescape=select_autoescape(['html'])
 )
 
+# Make sure cache directory exists since render starts with an empty file system
+os.makedirs(CACHE_DIR, exist_ok=True)
 
 async def generate_queue_image(state: dict):
     """
