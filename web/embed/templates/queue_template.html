@@ -70,21 +70,18 @@
         <h1>🎵 Ambience-inator Queue</h1>
 
         <div class="section">
-        <div class="track-title">{{ music.track_name or "Nothing Playing" }}</div>
-        <div class="playlist-name">
-            Playlist: {{ music.playlist_name or "None" }}
-        </div>
+            <strong>Now Play:</strong>
+            <div>{{ state.music.track_name }} (Playlist: {{ state.music.playlist_name }})</div>
         </div>
 
         <div class="section">
-        <div><b>Ambience:</b> {{ ambience.name or "None" }}</div>
-        <div><b>VC Connected:</b> {{ "Yes" if in_vc else "No" }}</div>
+            <strong>Ambience:</strong>
+            <div>{{ state.ambience.name }} – Volume {{ state.ambience.volume }}</div>
         </div>
 
-        <div class="status">
-        <span class="{{ bot_online }}">
-            Bot is currently {{ bot_online }}
-        </span>
+        <div class="section">
+            <strong>In VC:</strong> {{ state.in_vc }}<br>
+            <strong>Bot Online:</strong> {{ state.bot_online }}
         </div>
     </div>
 </body>
