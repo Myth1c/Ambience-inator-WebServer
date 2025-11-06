@@ -57,8 +57,8 @@ async def ipc_bot_handler(request):
                 elif payload.get("type") == "queue_update" and "payload" in payload:
                     update_queue_state(payload["payload"])
                     print ("[WEB] Cached new queue state from bot")
-                else:
-                    print("[WEB] From bot:", msg.data, flush=True)
+                # else:
+                #     print("[WEB] From bot:", msg.data, flush=True)
                     
                 await forward_to_clients(payload)
                 
