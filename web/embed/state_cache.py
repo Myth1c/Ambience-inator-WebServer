@@ -12,7 +12,8 @@ _latest_queue_state = {
     "tracks": [], #list of {"name" : str, "url" : sr}
     "current_index": 0,
     "previous_stack" : [], #list of indexes, helpful in case it goes out of order somehow
-    "loop_current" : False
+    "loop_current" : False,
+    "shuffle_mode": False
 }
 
 # ===== Playback State =====
