@@ -65,6 +65,7 @@ async def ipc_bot_handler(request):
 async def forward_to_bots(payload):
     for ws in list(connected_bots):
         try:
+            print("[WEB→BOT] Forwarding payload to bot:", payload)
             await ws.send_str(json.dumps(payload))
         except Exception:
             connected_bots.discard(ws)
