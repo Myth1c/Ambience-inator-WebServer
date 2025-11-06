@@ -130,15 +130,15 @@
         <div class="queue-section">
 
             {# ===== PREVIOUS TRACKS (AUTO-HIDE) ===== #}
-            {% if queue.previous_stack|length > 0 %}
+            {% for i in queue.previous_stack %}
             <div class="queue-subsection prev-glow">
                 <ul class="queue-list">
-                    {% for track in queue.previous_stack %}
-                        <li style="color:#aaa;">{{ track }}</li>
-                    {% endfor %}
+                    {% if i < queue.tracks|length %}
+                        <li style="color:#aaa;">{{ queue.tracks[i] }}</li>
+                    {% endif %}
                 </ul>
             </div>
-            {% endif %}
+            {% endfor %}
 
             {# ===== CURRENT SONG ===== #}
             <div class="queue-subsection current-song-box">
