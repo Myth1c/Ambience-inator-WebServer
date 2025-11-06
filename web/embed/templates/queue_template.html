@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Queue UI</title>
+<meta charset="UTF-8">
+<title>Queue UI</title>
     <style>
 
         /* ===== GLOBAL RESET ===== */
@@ -130,28 +130,30 @@
         <div class="queue-section">
 
             {# ===== PREVIOUS TRACKS (AUTO-HIDE) ===== #}
-            {% for i in queue.previous_stack %}
+            {% if queue.previous_stack|length > 0 %}
             <div class="queue-subsection prev-glow">
                 <ul class="queue-list">
-                    {% if i < queue.tracks|length %}
-                        <li style="color:#aaa;">{{ queue.tracks[i] }}</li>
-                    {% endif %}
+                    {% for i in queue.previous_stack %}
+                        {% if i < queue.tracks|length %}
+                            <li style="color:#aaa;">{{ queue.tracks[i].name }}</li>
+                        {% endif %}
+                    {% endfor %}
                 </ul>
             </div>
-            {% endfor %}
+            {% endif %}
 
             {# ===== CURRENT SONG ===== #}
             <div class="queue-subsection current-song-box">
                 <div class="current-song-text">
                     {% if queue.tracks and queue.current_index >= 0 and queue.current_index < queue.tracks|length %}
-                        {{ queue.tracks[queue.current_index] }}
+                        {{ queue.tracks[queue.current_index].name }}
                     {% else %}
                         (No song playing)
                     {% endif %}
                 </div>
             </div>
 
-            {# ===== COMPUTE NEXT TRACKS ===== #}
+            {# ===== NEXT TRACKS COMPUTATION ===== #}
             {% set next_tracks = queue.tracks[queue.current_index + 1:] 
                 if queue.tracks and queue.current_index + 1 < queue.tracks|length 
                 else [] 
@@ -162,7 +164,7 @@
             <div class="queue-subsection next-glow">
                 <ul class="queue-list">
                     {% for track in next_tracks %}
-                        <li style="color:#ccc;">{{ track }}</li>
+                        <li style="color:#ccc;">{{ track.name }}</li>
                     {% endfor %}
                 </ul>
             </div>
