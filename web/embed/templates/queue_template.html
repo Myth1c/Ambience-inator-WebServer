@@ -1,108 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Ambience-inator Queue Preview</title>
-
+    <meta charset="UTF-8">
+    <title>Queue UI</title>
     <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            background: #0f1116;
-            font-family: Arial, Helvetica, sans-serif;
-            color: #e5e5e5;
-        }
 
-        .container {
-            width: 650px;
-            margin: auto;
-            background: #1a1c22;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0px 0px 30px rgba(0,0,0,0.45);
-        }
+    /* ====== GLOBAL RESET ====== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        .section-title {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #ffffff;
-        }
+    /* ====== BASE THEME ====== */
+    body {
+        background: #202020;
+        color: #fff;
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
 
-        .panel {
-            background: #23252b;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #2e3138;
-        }
+    /* ====== PANEL WRAPPER ====== */
+    .queue-panel {
+        width: 600px;
+        height: 600px;
+        background: #111;
+        border: 2px solid #444;
+        border-radius: 10px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+    }
 
-        .row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
+    /* ====== TITLE BAR ====== */
+    .queue-title {
+        text-align: center;
+        font-size: 1.4rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+    }
 
-        .label {
-            color: #9ca3af;
-            font-size: 14px;
-        }
+    /* ====== SECTION ORGANIZATION ====== */
+    .queue-section {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        overflow: hidden;
+    }
 
-        .value {
-            color: #e5e7eb;
-            font-size: 14px;
-            font-weight: 600;
-        }
+    /* ====== SUBSECTIONS ====== */
+    .queue-subsection {
+        background: #181818;
+        border: 1px solid #333;
+        border-radius: 6px;
+        padding: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        min-height: 0;
+    }
 
-        .status-online {
-            color: #4caf50;
-            font-weight: bold;
-        }
+    .queue-label {
+        color: #aaa;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
 
-        .status-offline {
-            color: #f44336;
-            font-weight: bold;
-        }
+    /* ====== SONG LISTS ====== */
+    .queue-list {
+        list-style: none;
+        flex-grow: 1;
+        overflow-y: auto;
+        padding-right: 2px;
+        font-size: 0.95rem;
+    }
 
-        .status-booting {
-            color: #ffca28;
-            font-weight: bold;
-        }
+    .queue-list li {
+        padding: 6px 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border-bottom: 1px solid #2a2a2a;
+        color: #ccc;
+    }
 
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            color: #6b7280;
-            font-size: 13px;
-        }
+    .queue-list li:hover {
+        background: #222;
+    }
+
+    /* ====== CURRENT SONG HIGHLIGHT ====== */
+    .current-song-box {
+        border: 1px solid #4caf50;
+        background: #152415;
+        box-shadow: 0 0 12px rgba(76,175,80,0.3);
+    }
+
+    .current-song-text {
+        font-family: monospace;
+        color: #4caf50;
+        font-size: 1rem;
+        padding: 4px;
+    }
+
+    /* ====== FOOTER ====== */
+    .queue-footer {
+        margin-top: 0.5rem;
+        padding-top: 0.75rem;
+        text-align: center;
+        border-top: 1px solid #333;
+        color: #4caf50;
+        font-family: monospace;
+    }
+
     </style>
 </head>
 
 <body>
-    <div class="panel">
-    <div class="section-title">Current Queue</div>
 
-    <div class="row">
-        <span class="label">Playlist:</span>
-        <span class="value">{{ queue.playlist_name }}</span>
-    </div>
+    <div class="queue-panel">
 
-    <div class="row">
-        <span class="label">Current Song #:</span>
-        <span class="value">{{ queue.current_index + 1 }}</span>
-    </div>
+        <!-- Playlist Name -->
+        <h2 class="queue-title">Playlist: 
+            <span id="queuePlaylistName">{{ playlist_name }}</span>
+        </h2>
 
-    <div class="section-title" style="margin-top: 15px; font-size: 18px;">Tracks</div>
+        <div class="queue-section">
 
-    {% for track in queue.tracks %}
-        <div class="row" style="margin: 4px 0;">
-            <span class="label">{{ loop.index }}.</span>
-            <span class="value" 
-                  style="color: {{ '#4caf50' if loop.index0 == queue.current_index else '#e5e5e5' }}">
-                {{ track.name }}
-            </span>
+            <!-- Previously Played -->
+            <div class="queue-subsection">
+                <h4 class="queue-label">Previously Played</h4>
+                <ul id="queuePrevious" class="queue-list">
+                    {% for track in previous_tracks %}
+                        <li>{{ track }}</li>
+                    {% endfor %}
+                    {% if previous_tracks|length == 0 %}
+                        <li style="color:#555;">(None)</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- Current Song -->
+            <div class="queue-subsection current-song-box">
+                <h4 class="queue-label">Now Playing</h4>
+                <div class="current-song-text" id="queueCurrent">
+                    {{ current_track if current_track else "(No song playing)" }}
+                </div>
+            </div>
+
+            <!-- Upcoming Songs -->
+            <div class="queue-subsection">
+                <h4 class="queue-label">Up Next</h4>
+                <ul id="queueNext" class="queue-list">
+                    {% for track in next_tracks %}
+                        <li>{{ track }}</li>
+                    {% endfor %}
+                    {% if next_tracks|length == 0 %}
+                        <li style="color:#555;">(End of queue)</li>
+                    {% endif %}
+                </ul>
+            </div>
+
         </div>
-    {% endfor %}
+
+        <!-- Footer Info -->
+        <div class="queue-footer">
+            Loop: {{ loop_enabled }} • 
+            Shuffle: {{ shuffle_enabled }} • 
+            Index: {{ current_index }} / {{ queue_length }}
+        </div>
     </div>
+
 </body>
 </html>
