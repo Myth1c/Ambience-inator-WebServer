@@ -1,10 +1,10 @@
 # web/ws_handlers.py
 
-from aiohttp import web
-import aiohttp
-import json
+import aiohttp, json, asyncio
 
-from web.embed.state_cache import update_state
+from aiohttp import web
+from web.embed.state_cache import update_state, get_state
+from web.embed.queue import generate_queue_image
 
 connections = set()
 connected_bots = set()
@@ -51,7 +51,8 @@ async def ipc_bot_handler(request):
                 
                 # Handle live state updates
                 if payload.get("type") == "state_update" and "payload" in payload:
-                    await update_state(payload["payload"])
+                    update_state(payload["payload"])
+                    asyncio.create_task(generate_queue_image(get_state()))
                     print ("[WEB] Cached new playback state from bot")
                 else:
                     print("[WEB] From bot:", msg.data, flush=True)
