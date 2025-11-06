@@ -42,12 +42,12 @@ async def ipc_bot_handler(request):
     try:
         async for msg in ws:
             if msg.type == web.WSMsgType.TEXT:
+                print("[WEB] From bot:", msg.data, flush=True)
                 try:
                     payload = json.loads(msg.data)
                 except json.JSONDecodeError:
                     continue
 
-                print("[WEB] From bot:", msg.data, flush=True)
                     
                 await forward_to_clients(payload)
                 

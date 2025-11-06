@@ -36,10 +36,6 @@ async def auth_middleware(request, handler):
     if request.path in ("/auth", "/auth_check", "/ws", "/status", "/ipc", "/heartbeat"):
         return await handler(request)
     
-    # Allow /embed/*
-    if request.path.startswith("/embed/"):
-        return await handler(request)
-
     # Check if already authenticated
     token = request.cookies.get("auth") or request.headers.get("Authorization")
     if token == AUTH_KEY:
