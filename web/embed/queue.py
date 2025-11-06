@@ -38,7 +38,10 @@ async def generate_queue_image() -> str:
     html = await render_queue_html()
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-setuid-sandbox"]
+        )
         page = await browser.new_page(viewport={"width": 640, "height": 400})
         await page.set_content(html)
         await page.screenshot(path=QUEUE_IMG_PATH)
