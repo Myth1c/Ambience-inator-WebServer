@@ -25,7 +25,7 @@ async def render_queue_html() -> str:
     """Render the queue HTML using Jinja2 and the cached playback state."""
     state = get_state()
     template = env.get_template("queue_template.html")
-    return template.render(**state)
+    return template.render(state=state)
 
 
 # === Generate Screenshot from HTML ===
