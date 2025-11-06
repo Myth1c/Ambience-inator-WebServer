@@ -5,7 +5,7 @@ from aiohttp import web
 import signal
 
 from web.ws_handlers import websocket_handler, ipc_bot_handler, heartbeat_handler
-from web.embed.queue import embed_queue_handler
+from web.embed.queue import setup_routes as setup_queue_routes
 
 global AUTH_KEY
 
@@ -90,8 +90,7 @@ def create_app():
     
     
     # --- Embed stuff ---
-    app.router.add_get("/embed/queue", embed_queue_handler)
-    app.router.add_static("/embed/cache", path="web/embed/cache", show_index=False)
+    setup_queue_routes(app)
     
     return app
 

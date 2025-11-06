@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ambience-inator Queue</title>
+    <style>
+        body {
+            background-color: #181a1b;
+            color: #e0e0e0;
+            font-family: "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #222;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+            padding: 20px 30px;
+        }
+
+        h1 {
+            color: #4caf50;
+            margin-top: 0;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        .section {
+            margin-top: 16px;
+            padding: 10px 14px;
+            background: #1b1d1e;
+            border-radius: 8px;
+        }
+
+        .track-title {
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        .playlist-name {
+            font-style: italic;
+            color: #aaa;
+        }
+
+        .status {
+            margin-top: 10px;
+            text-align: center;
+            color: #aaa;
+        }
+
+        .online {
+            color: #4caf50;
+        }
+
+        .offline {
+            color: #f44336;
+        }
+
+        .playing {
+            color: #ffca28;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Ambience-inator Queue</h1>
+
+        <div class="section">
+        <div class="track-title">{{ music.track_name or "Nothing Playing" }}</div>
+        <div class="playlist-name">
+            Playlist: {{ music.playlist_name or "None" }}
+        </div>
+        </div>
+
+        <div class="section">
+        <div><b>Ambience:</b> {{ ambience.name or "None" }}</div>
+        <div><b>VC Connected:</b> {{ "Yes" if in_vc else "No" }}</div>
+        </div>
+
+        <div class="status">
+        <span class="{{ bot_online }}">
+            Bot is currently {{ bot_online }}
+        </span>
+        </div>
+    </div>
+</body>
+</html>
