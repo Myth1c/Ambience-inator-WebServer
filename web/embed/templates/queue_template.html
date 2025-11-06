@@ -1,88 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ambience-inator Queue</title>
-    <style>
-        body {
-            background-color: #181a1b;
-            color: #e0e0e0;
-            font-family: "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            padding: 30px;
-        }
+<meta charset="UTF-8" />
+<title>Ambience-inator Queue Preview</title>
 
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: #222;
-            border-radius: 12px;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
-            padding: 20px 30px;
-        }
+<style>
+    body {
+        margin: 0;
+        padding: 20px;
+        background: #0f1116;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #e5e5e5;
+    }
 
-        h1 {
-            color: #4caf50;
-            margin-top: 0;
-            text-align: center;
-            font-size: 1.8rem;
-        }
+    .container {
+        width: 650px;
+        margin: auto;
+        background: #1a1c22;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0px 0px 30px rgba(0,0,0,0.45);
+    }
 
-        .section {
-            margin-top: 16px;
-            padding: 10px 14px;
-            background: #1b1d1e;
-            border-radius: 8px;
-        }
+    .section-title {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #ffffff;
+    }
 
-        .track-title {
-            font-size: 1.2rem;
-            color: #fff;
-        }
+    .panel {
+        background: #23252b;
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #2e3138;
+    }
 
-        .playlist-name {
-            font-style: italic;
-            color: #aaa;
-        }
+    .row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
 
-        .status {
-            margin-top: 10px;
-            text-align: center;
-            color: #aaa;
-        }
+    .label {
+        color: #9ca3af;
+        font-size: 14px;
+    }
 
-        .online {
-            color: #4caf50;
-        }
+    .value {
+        color: #e5e7eb;
+        font-size: 14px;
+        font-weight: 600;
+    }
 
-        .offline {
-            color: #f44336;
-        }
+    .status-online {
+        color: #4caf50;
+        font-weight: bold;
+    }
 
-        .playing {
-            color: #ffca28;
-        }
-    </style>
+    .status-offline {
+        color: #f44336;
+        font-weight: bold;
+    }
+
+    .status-booting {
+        color: #ffca28;
+        font-weight: bold;
+    }
+
+    .footer {
+        margin-top: 20px;
+        text-align: center;
+        color: #6b7280;
+        font-size: 13px;
+    }
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>🎵 Ambience-inator Queue</h1>
+<div class="container">
 
-        <div class="section">
-            <strong>Now Play:</strong>
-            <div>{{ state.music.track_name }} (Playlist: {{ state.music.playlist_name }})</div>
+    <!-- Bot Status -->
+    <div class="panel">
+        <div class="section-title">Bot Status</div>
+        <div class="row">
+            <span class="label">Bot:</span>
+            <span class="value {{ 
+                'status-online' if state.bot_online == 'online' else 
+                'status-booting' if state.bot_online == 'booting' else 
+                'status-offline' 
+            }}">{{ state.bot_online }}</span>
         </div>
 
-        <div class="section">
-            <strong>Ambience:</strong>
-            <div>{{ state.ambience.name }} – Volume {{ state.ambience.volume }}</div>
-        </div>
-
-        <div class="section">
-            <strong>In VC:</strong> {{ state.in_vc }}<br>
-            <strong>Bot Online:</strong> {{ state.bot_online }}
+        <div class="row">
+            <span class="label">Voice Connected:</span>
+            <span class="value">{{ "Yes" if state.in_vc else "No" }}</span>
         </div>
     </div>
+
+
+    <!-- Music Section -->
+    <div class="panel">
+        <div class="section-title">Music Playback</div>
+
+        <div class="row">
+            <span class="label">Playlist:</span>
+            <span class="value">{{ state.music.playlist_name }}</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Track:</span>
+            <span class="value">{{ state.music.track_name }}</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Playing:</span>
+            <span class="value">{{ "Yes" if state.music.playing else "No" }}</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Volume:</span>
+            <span class="value">{{ state.music.volume }}</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Shuffle:</span>
+            <span class="value">{{ "On" if state.music.shuffle else "Off" }}</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Loop:</span>
+            <span class="value">{{ "On" if state.music.loop else "Off" }}</span>
+        </div>
+    </div>
+
+
+    <!-- Ambience Section -->
+    <div class="panel">
+        <div class="section-title">Ambience Playback</div>
+
+        <div class="row">
+            <span class="label">Ambience Name:</span>
+            <span class="value">{{ state.ambience.name }}</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Playing:</span>
+            <span class="value">{{ "Yes" if state.ambience.playing else "No" }}</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Volume:</span>
+            <span class="value">{{ state.ambience.volume }}</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        Ambience-inator • Live Queue Preview
+    </div>
+
+</div>
 </body>
 </html>
