@@ -52,7 +52,7 @@ async def ipc_bot_handler(request):
                 # Handle live state updates
                 if payload.get("type") == "state_update" and "payload" in payload:
                     update_state(payload["payload"])
-                    asyncio.create_task(generate_queue_image(get_state()))
+                    asyncio.create_task(generate_queue_image())
                     print ("[WEB] Cached new playback state from bot")
                 else:
                     print("[WEB] From bot:", msg.data, flush=True)
