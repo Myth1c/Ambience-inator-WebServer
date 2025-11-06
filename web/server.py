@@ -19,6 +19,7 @@ ALLOWD_ORIGINS = [
 async def cors_middleware(request, handler):
     """Add CORS headers to every response."""
     
+    print(f"[CORS] Origin: {request.headers.get('Origin')}, Method: {request.method}")
     #TODO: Add either a check for a DEBUG Env var or remove this completely so that unauthorized access isn't allowed.
     origin = request.headers.get("Origin")
     if not origin:
