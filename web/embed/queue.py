@@ -4,7 +4,7 @@ import os, json
 from aiohttp import web
 from jinja2 import Environment, FileSystemLoader, Template
 from playwright.async_api import async_playwright
-from web.embed.state_cache import get_state
+from web.embed.state_cache import get_state, get_queue_state
 
 
 # === Paths ===
@@ -24,8 +24,9 @@ env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
 async def render_queue_html() -> str:
     """Render the queue HTML using Jinja2 and the cached playback state."""
     state = get_state()
+    queue = get_queue_state()
     template = env.get_template("queue_template.html")
-    return template.render(state=state)
+    return template.render(state=state, queue=queue)
 
 
 # === Generate Screenshot from HTML ===
