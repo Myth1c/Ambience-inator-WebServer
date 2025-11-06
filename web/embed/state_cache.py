@@ -16,7 +16,7 @@ _latest_queue_state = {
 }
 
 # ===== Playback State =====
-def set_state(new_state: dict):
+def update_state(new_state: dict):
     """Save the bot playback state."""
     global _latest_state
     _latest_state.update(new_state)
