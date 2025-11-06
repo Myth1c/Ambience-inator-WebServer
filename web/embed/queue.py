@@ -46,7 +46,7 @@ async def generate_queue_image():
             )
             page = await browser.new_page()
             await page.goto(f"file://{tmp_path}")
-            await page.set_viewport_size({"width": 600, "height": 800})
+            await page.set_viewport_size({"width": 1200, "height": 1600})
             await page.screenshot(path=CACHE_IMG)
             await browser.close()
 
