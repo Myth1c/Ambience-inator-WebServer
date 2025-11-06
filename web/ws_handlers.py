@@ -50,7 +50,7 @@ async def ipc_bot_handler(request):
                     continue
                 
                 # Handle live state updates
-                if payload.get("type" == "state_update" and "payload" in payload):
+                if payload.get("type") == "state_update" and "payload" in payload:
                     await update_state(payload["payload"])
                     print ("[WEB] Cached new playback state from bot")
                 else:
