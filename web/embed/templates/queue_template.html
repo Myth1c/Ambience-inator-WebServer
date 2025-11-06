@@ -1,180 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Queue UI</title>
-    <style>
+<meta charset="UTF-8">
+<title>Queue UI</title>
+<style>
 
-    /* ====== GLOBAL RESET ====== */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+/* ===== GLOBAL RESET ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-    /* ====== BASE THEME ====== */
-    body {
-        background: #202020;
-        color: #fff;
-        font-family: sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
+/* ===== BASE THEME ===== */
+body {
+    background: #202020;
+    color: #fff;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-    /* ====== PANEL WRAPPER ====== */
-    .queue-panel {
-        width: 600px;
-        height: 600px;
-        background: #111;
-        border: 2px solid #444;
-        border-radius: 10px;
-        box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
-        padding: 1.25rem;
-        display: flex;
-        flex-direction: column;
-    }
+/* ===== OUTER PANEL ===== */
+.queue-panel {
+    width: 600px;
+    height: 800px;
+    background: #111;
+    border: 2px solid #444;
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 12px rgba(0,0,0,0.5);
+}
 
-    /* ====== TITLE BAR ====== */
-    .queue-title {
-        text-align: center;
-        font-size: 1.4rem;
-        color: #ccc;
-        margin-bottom: 1rem;
-    }
+/* ===== TITLE ===== */
+.queue-title {
+    text-align: center;
+    color: #ccc;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+}
 
-    /* ====== SECTION ORGANIZATION ====== */
-    .queue-section {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        overflow: hidden;
-    }
+/* ===== CONTENT LAYOUT ===== */
+.queue-section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: hidden;
+}
 
-    /* ====== SUBSECTIONS ====== */
-    .queue-subsection {
-        background: #181818;
-        border: 1px solid #333;
-        border-radius: 6px;
-        padding: 0.75rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        min-height: 0;
-    }
+/* ===== BASE PANEL ===== */
+.queue-subsection {
+    background: #181818;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
+    overflow: hidden;
+}
 
-    .queue-label {
-        color: #aaa;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+/* ===== COLOR GLOWS ===== */
+.prev-glow {
+    box-shadow: 0 0 12px rgba(255, 180, 80, 0.25);
+    border-color: rgba(255, 180, 80, 0.35);
+}
 
-    /* ====== SONG LISTS ====== */
-    .queue-list {
-        list-style: none;
-        flex-grow: 1;
-        overflow-y: auto;
-        padding-right: 2px;
-        font-size: 0.95rem;
-    }
+.next-glow {
+    box-shadow: 0 0 12px rgba(80, 140, 255, 0.25);
+    border-color: rgba(80, 140, 255, 0.35);
+}
 
-    .queue-list li {
-        padding: 6px 10px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        border-bottom: 1px solid #2a2a2a;
-        color: #ccc;
-    }
+.current-song-box {
+    border: 1px solid #4caf50;
+    background: #152415;
+    box-shadow: 0 0 14px rgba(76,175,80,0.4);
+}
 
-    .queue-list li:hover {
-        background: #222;
-    }
+/* ===== SONG LIST ===== */
+.queue-list {
+    list-style: none;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+}
 
-    /* ====== CURRENT SONG HIGHLIGHT ====== */
-    .current-song-box {
-        border: 1px solid #4caf50;
-        background: #152415;
-        box-shadow: 0 0 12px rgba(76,175,80,0.3);
-    }
+.queue-list li {
+    padding: 6px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #2a2a2a;
+}
 
-    .current-song-text {
-        font-family: monospace;
-        color: #4caf50;
-        font-size: 1rem;
-        padding: 4px;
-    }
+.queue-list li:hover {
+    background: #222;
+}
 
-    /* ====== FOOTER ====== */
-    .queue-footer {
-        margin-top: 0.5rem;
-        padding-top: 0.75rem;
-        text-align: center;
-        border-top: 1px solid #333;
-        color: #4caf50;
-        font-family: monospace;
-    }
+/* ===== CURRENT SONG ===== */
+.current-song-text {
+    font-family: monospace;
+    color: #4caf50;
+    font-size: 1rem;
+    padding: 6px;
+}
 
-    </style>
+/* ===== FOOTER ===== */
+.queue-footer {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    text-align: center;
+    border-top: 1px solid #333;
+    color: #4caf50;
+    font-family: monospace;
+}
+
+</style>
 </head>
-
 <body>
 
-    <div class="queue-panel">
+<div class="queue-panel">
 
-        <!-- Playlist Name -->
-        <h2 class="queue-title">Playlist: 
-            <span id="queuePlaylistName">{{ playlist_name }}</span>
-        </h2>
+    <h2 class="queue-title">
+        Playlist: <span>{{ playlist_name }}</span>
+    </h2>
 
-        <div class="queue-section">
+    <div class="queue-section">
 
-            <!-- Previously Played -->
-            <div class="queue-subsection">
-                <h4 class="queue-label">Previously Played</h4>
-                <ul id="queuePrevious" class="queue-list">
-                    {% for track in previous_tracks %}
-                        <li>{{ track }}</li>
-                    {% endfor %}
-                    {% if previous_tracks|length == 0 %}
-                        <li style="color:#555;">(None)</li>
-                    {% endif %}
-                </ul>
+        {# ===== PREVIOUS SONGS (HIDE IF EMPTY) ===== #}
+        {% if previous_tracks|length > 0 %}
+        <div class="queue-subsection prev-glow">
+            <ul class="queue-list">
+                {% for track in previous_tracks %}
+                    <li style="color:#aaa;">{{ track }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {# ===== CURRENT SONG ===== #}
+        <div class="queue-subsection current-song-box">
+            <div class="current-song-text">
+                {{ current_track if current_track else "(No song playing)" }}
             </div>
-
-            <!-- Current Song -->
-            <div class="queue-subsection current-song-box">
-                <h4 class="queue-label">Now Playing</h4>
-                <div class="current-song-text" id="queueCurrent">
-                    {{ current_track if current_track else "(No song playing)" }}
-                </div>
-            </div>
-
-            <!-- Upcoming Songs -->
-            <div class="queue-subsection">
-                <h4 class="queue-label">Up Next</h4>
-                <ul id="queueNext" class="queue-list">
-                    {% for track in next_tracks %}
-                        <li>{{ track }}</li>
-                    {% endfor %}
-                    {% if next_tracks|length == 0 %}
-                        <li style="color:#555;">(End of queue)</li>
-                    {% endif %}
-                </ul>
-            </div>
-
         </div>
 
-        <!-- Footer Info -->
-        <div class="queue-footer">
-            Loop: {{ loop_enabled }} • 
-            Shuffle: {{ shuffle_enabled }} • 
-            Index: {{ current_index }} / {{ queue_length }}
+        {# ===== NEXT SONGS (HIDE IF EMPTY) ===== #}
+        {% if next_tracks|length > 0 %}
+        <div class="queue-subsection next-glow">
+            <ul class="queue-list">
+                {% for track in next_tracks %}
+                    <li style="color:#ccc;">{{ track }}</li>
+                {% endfor %}
+            </ul>
         </div>
+        {% endif %}
+
     </div>
+
+    <!-- FOOTER -->
+    <div class="queue-footer">
+        Loop: {{ loop_enabled }} •
+        Shuffle: {{ shuffle_enabled }} •
+        Index: {{ current_index }} / {{ full_length }}
+    </div>
+
+</div>
 
 </body>
 </html>
