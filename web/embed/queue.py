@@ -24,7 +24,7 @@ async def embed_queue(request):
             <meta charset="utf-8">
             <title>Ambience-inator — Now Playing</title>
 
-            <meta property="og:title" content="🎵 {title}">
+            <meta property="og:title" content="{title}">
             <meta property="og:description" content="{playing} • Playlist: {playlist} | {status_text}">
             <meta property="og:image" content="https://myth1c.github.io/Ambience-inator/images/embed-nowplaying.png">
             <meta property="og:type" content="website">
