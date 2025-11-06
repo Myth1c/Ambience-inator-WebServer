@@ -102,12 +102,24 @@
             background: #222;
         }
 
-        /* ===== CURRENT SONG TEXT ===== */
-        .track-name {
-            font-family: monospace !important;
+        /* ===== SONG TEXT ===== */
+        .previous-song-text {
+            color: rgba(255,180,80,0.25);
+            font-size: 1rem;
+            padding: 6px;
+        }
+        .current-song-text {
             color: #4caf50;
             font-size: 1rem;
             padding: 0px;
+        }
+        .next-song-text {
+            color: rgba(80,140,255,0.35);
+            font-size: 1rem;
+            padding: 6px;
+        }
+        .track-name {
+            font-family: monospace !important;
         }
 
         /* ===== FOOTER ===== */
@@ -138,7 +150,7 @@
                 <ul class="queue-list">
                     {% for i in queue.previous_stack %}
                         {% if i < queue.tracks|length %}
-                            <li class="track-name" style="color:#aaa;">{{ queue.tracks[i].name }}</li>
+                            <li class="previous-song-text track-name">{{ queue.tracks[i].name }}</li>
                         {% endif %}
                     {% endfor %}
                 </ul>
@@ -167,7 +179,7 @@
             <div class="queue-subsection next-glow">
                 <ul class="queue-list">
                     {% for track in next_tracks %}
-                        <li class="track-name" style="color:#ccc;">{{ track.name }}</li>
+                        <li class="next-song-text track-name">{{ track.name }}</li>
                     {% endfor %}
                 </ul>
             </div>
