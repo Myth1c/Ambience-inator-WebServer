@@ -1,165 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Ambience-inator Queue Preview</title>
+    <meta charset="UTF-8" />
+    <title>Ambience-inator Queue Preview</title>
 
-<style>
-    body {
-        margin: 0;
-        padding: 20px;
-        background: #0f1116;
-        font-family: Arial, Helvetica, sans-serif;
-        color: #e5e5e5;
-    }
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0f1116;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #e5e5e5;
+        }
 
-    .container {
-        width: 650px;
-        margin: auto;
-        background: #1a1c22;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0px 0px 30px rgba(0,0,0,0.45);
-    }
+        .container {
+            width: 650px;
+            margin: auto;
+            background: #1a1c22;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0px 0px 30px rgba(0,0,0,0.45);
+        }
 
-    .section-title {
-        font-size: 22px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #ffffff;
-    }
+        .section-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
 
-    .panel {
-        background: #23252b;
-        padding: 16px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        border: 1px solid #2e3138;
-    }
+        .panel {
+            background: #23252b;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #2e3138;
+        }
 
-    .row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 6px;
-    }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
 
-    .label {
-        color: #9ca3af;
-        font-size: 14px;
-    }
+        .label {
+            color: #9ca3af;
+            font-size: 14px;
+        }
 
-    .value {
-        color: #e5e7eb;
-        font-size: 14px;
-        font-weight: 600;
-    }
+        .value {
+            color: #e5e7eb;
+            font-size: 14px;
+            font-weight: 600;
+        }
 
-    .status-online {
-        color: #4caf50;
-        font-weight: bold;
-    }
+        .status-online {
+            color: #4caf50;
+            font-weight: bold;
+        }
 
-    .status-offline {
-        color: #f44336;
-        font-weight: bold;
-    }
+        .status-offline {
+            color: #f44336;
+            font-weight: bold;
+        }
 
-    .status-booting {
-        color: #ffca28;
-        font-weight: bold;
-    }
+        .status-booting {
+            color: #ffca28;
+            font-weight: bold;
+        }
 
-    .footer {
-        margin-top: 20px;
-        text-align: center;
-        color: #6b7280;
-        font-size: 13px;
-    }
-</style>
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 13px;
+        }
+    </style>
 </head>
 
 <body>
-<div class="container">
-
-    <!-- Bot Status -->
     <div class="panel">
-        <div class="section-title">Bot Status</div>
-        <div class="row">
-            <span class="label">Bot:</span>
-            <span class="value {{ 
-                'status-online' if state.bot_online == 'online' else 
-                'status-booting' if state.bot_online == 'booting' else 
-                'status-offline' 
-            }}">{{ state.bot_online }}</span>
-        </div>
+    <div class="section-title">Current Queue</div>
 
-        <div class="row">
-            <span class="label">Voice Connected:</span>
-            <span class="value">{{ "Yes" if state.in_vc else "No" }}</span>
-        </div>
+    <div class="row">
+        <span class="label">Playlist:</span>
+        <span class="value">{{ queue.playlist_name }}</span>
     </div>
 
-
-    <!-- Music Section -->
-    <div class="panel">
-        <div class="section-title">Music Playback</div>
-
-        <div class="row">
-            <span class="label">Playlist:</span>
-            <span class="value">{{ state.music.playlist_name }}</span>
-        </div>
-
-        <div class="row">
-            <span class="label">Track:</span>
-            <span class="value">{{ state.music.track_name }}</span>
-        </div>
-
-        <div class="row">
-            <span class="label">Playing:</span>
-            <span class="value">{{ "Yes" if state.music.playing else "No" }}</span>
-        </div>
-
-        <div class="row">
-            <span class="label">Volume:</span>
-            <span class="value">{{ state.music.volume }}</span>
-        </div>
-
-        <div class="row">
-            <span class="label">Shuffle:</span>
-            <span class="value">{{ "On" if state.music.shuffle else "Off" }}</span>
-        </div>
-
-        <div class="row">
-            <span class="label">Loop:</span>
-            <span class="value">{{ "On" if state.music.loop else "Off" }}</span>
-        </div>
+    <div class="row">
+        <span class="label">Current Song #:</span>
+        <span class="value">{{ queue.current_index + 1 }}</span>
     </div>
 
+    <div class="section-title" style="margin-top: 15px; font-size: 18px;">Tracks</div>
 
-    <!-- Ambience Section -->
-    <div class="panel">
-        <div class="section-title">Ambience Playback</div>
-
-        <div class="row">
-            <span class="label">Ambience Name:</span>
-            <span class="value">{{ state.ambience.name }}</span>
+    {% for track in queue.tracks %}
+        <div class="row" style="margin: 4px 0;">
+            <span class="label">{{ loop.index }}.</span>
+            <span class="value" 
+                  style="color: {{ '#4caf50' if loop.index0 == queue.current_index else '#e5e5e5' }}">
+                {{ track.name }}
+            </span>
         </div>
-
-        <div class="row">
-            <span class="label">Playing:</span>
-            <span class="value">{{ "Yes" if state.ambience.playing else "No" }}</span>
-        </div>
-
-        <div class="row">
-            <span class="label">Volume:</span>
-            <span class="value">{{ state.ambience.volume }}</span>
-        </div>
+    {% endfor %}
     </div>
-
-    <div class="footer">
-        Ambience-inator • Live Queue Preview
-    </div>
-
-</div>
 </body>
 </html>
