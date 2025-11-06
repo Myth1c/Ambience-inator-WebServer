@@ -20,7 +20,9 @@ async def cors_middleware(request, handler):
     """Add CORS headers to every response."""
     
     origin = request.headers.get("Origin")
-    if origin in ALLOWD_ORIGINS:
+    if not origin:
+        allow_origin = "null" # Allow for file:// origin basically
+    elif origin in ALLOWD_ORIGINS:
         allow_origin = origin
     else:
         allow_origin = "https://myth1c.github.io"
