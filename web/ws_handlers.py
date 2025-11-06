@@ -3,7 +3,7 @@
 import aiohttp, json, asyncio
 
 from aiohttp import web
-from web.embed.state_cache import update_state, get_state
+from web.embed.state_cache import update_state, update_queue_state
 from web.embed.queue import generate_queue_image
 
 connections = set()
@@ -54,6 +54,9 @@ async def ipc_bot_handler(request):
                     update_state(payload["payload"])
                     asyncio.create_task(generate_queue_image())
                     print ("[WEB] Cached new playback state from bot")
+                elif payload.get("type") == "queue_update" and "payload" in payload:
+                    update_queue_state(payload["payload"])
+                    print ("[WEB] Cached new queue state from bot")
                 else:
                     print("[WEB] From bot:", msg.data, flush=True)
                     
