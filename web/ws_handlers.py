@@ -3,7 +3,8 @@
 from aiohttp import web
 import aiohttp
 import json
-import asyncio
+
+from web.embed.state_cache import update_state
 
 connections = set()
 connected_bots = set()
@@ -43,15 +44,18 @@ async def ipc_bot_handler(request):
     try:
         async for msg in ws:
             if msg.type == web.WSMsgType.TEXT:
-                print("[WEB] From bot:", msg.data, flush=True)
                 try:
                     payload = json.loads(msg.data)
-                    if payload.get("type") == "heartbeat_ack":
-                        print("[WEB] Bot heartbeat ack")
-                        continue
                 except json.JSONDecodeError:
                     continue
                 
+                # Handle live state updates
+                if payload.get("type" == "state_update" and "payload" in payload):
+                    await update_state(payload["payload"])
+                    print ("[WEB] Cached new playback state from bot")
+                else:
+                    print("[WEB] From bot:", msg.data, flush=True)
+                    
                 await forward_to_clients(payload)
                 
             elif msg.type == web.WSMsgType.ERROR:

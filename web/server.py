@@ -5,6 +5,7 @@ from aiohttp import web
 import signal
 
 from web.ws_handlers import websocket_handler, ipc_bot_handler, heartbeat_handler
+from web.embed.queue import register_routes as register_queue_embed
 
 global AUTH_KEY
 
@@ -33,7 +34,7 @@ async def cors_middleware(request, handler):
 @web.middleware
 async def auth_middleware(request, handler):
     # Allow these paths to bypass the authentication step of the site
-    if request.path in ("/auth", "/auth_check", "/ws", "/status", "/ipc", "/heartbeat"):
+    if request.path in ("/auth", "/auth_check", "/ws", "/status", "/ipc", "/heartbeat", "/embed"):
         return await handler(request)
 
     # Check if already authenticated
@@ -82,6 +83,9 @@ def create_app():
     app.router.add_get("/ws", websocket_handler)
     app.router.add_get("/ipc", ipc_bot_handler)
     app.router.add_get("/heartbeat", heartbeat_handler)
+    
+    # --- Register Routes for Embeds ---
+    register_queue_embed(app) # Registers on /embed/queue
     
     return app
 
