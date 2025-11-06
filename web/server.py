@@ -8,30 +8,13 @@ from web.ws_handlers import websocket_handler, ipc_bot_handler, heartbeat_handle
 
 global AUTH_KEY
 
-ALLOWD_ORIGINS = [
-    "https://myth1c.github.io",
-    "http://localhost",
-    "http://127.0.0.1"
-]
-
 # ===== Middleware =====
 @web.middleware
 async def cors_middleware(request, handler):
     """Add CORS headers to every response."""
-    
-    print(f"[CORS] Origin: {request.headers.get('Origin')}, Method: {request.method}")
-    #TODO: Add either a check for a DEBUG Env var or remove this completely so that unauthorized access isn't allowed.
-    origin = request.headers.get("Origin")
-    if not origin:
-        allow_origin = "*" # Allow for file:// origin basically
-    elif origin in ALLOWD_ORIGINS:
-        allow_origin = origin
-    else:
-        allow_origin = "https://myth1c.github.io"
-        
     if request.method == "OPTIONS":
         return web.Response(status=200, headers={
-            "Access-Control-Allow-Origin": allow_origin,
+            "Access-Control-Allow-Origin": "https://myth1c.github.io",
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization",
             "Access-Control-Allow-Credentials": "true"
@@ -39,7 +22,7 @@ async def cors_middleware(request, handler):
     
     
     response = await handler(request)
-    response.headers["Access-Control-Allow-Origin"] = allow_origin
+    response.headers["Access-Control-Allow-Origin"] = "https://myth1c.github.io"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
     response.headers["Access-Control-Allow-Credentials"] = "true"
