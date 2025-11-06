@@ -3,8 +3,6 @@
 import aiohttp, json, asyncio
 
 from aiohttp import web
-from web.embed.state_cache import update_state, update_queue_state
-from web.embed.queue import generate_queue_image
 
 connections = set()
 connected_bots = set()
@@ -48,17 +46,8 @@ async def ipc_bot_handler(request):
                     payload = json.loads(msg.data)
                 except json.JSONDecodeError:
                     continue
-                
-                # Handle live state updates
-                if payload.get("type") == "state_update" and "payload" in payload:
-                    update_state(payload["payload"])
-                    asyncio.create_task(generate_queue_image())
-                    print ("[WEB] Cached new playback state from bot")
-                elif payload.get("type") == "queue_update" and "payload" in payload:
-                    update_queue_state(payload["payload"])
-                    print ("[WEB] Cached new queue state from bot")
-                else:
-                    print("[WEB] From bot:", msg.data, flush=True)
+
+                print("[WEB] From bot:", msg.data, flush=True)
                     
                 await forward_to_clients(payload)
                 
