@@ -1,9 +1,8 @@
 """Handles generation of the Queue embed for Ambience-inator."""
 
-import os
-import time
+import os, json
 from aiohttp import web
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, Template
 from playwright.async_api import async_playwright
 from web.embed.state_cache import get_state
 
@@ -14,14 +13,11 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
 CACHE_DIR = os.path.join(BASE_DIR, "cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-QUEUE_IMG_PATH = os.path.join(CACHE_DIR, "queue.png")
+CACHE_IMG = os.path.join(CACHE_DIR, "queue_preview.png")
+TEMPLATE_FILE = os.path.join(TEMPLATE_DIR, "queue_template.html")
 
 # === Jinja2 Setup ===
 env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
-
-# Track last render time so we don’t rebuild constantly
-_last_render_time = 0
-RENDER_COOLDOWN = 30  # seconds
 
 
 # === HTML Rendering ===
@@ -32,41 +28,47 @@ async def render_queue_html() -> str:
     return template.render(**state)
 
 
-# === Screenshot Generation ===
-async def generate_queue_image() -> str:
-    """Generate (or overwrite) the queue image from rendered HTML."""
-    html = await render_queue_html()
+# === Generate Screenshot from HTML ===
+async def generate_queue_image():
+    """Render queue_template.html (with state) and capture a screenshot."""
+    rendered_html = await render_queue_html()
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(
-            headless=True,
-            args=["--no-sandbox", "--disable-setuid-sandbox"]
-        )
-        page = await browser.new_page(viewport={"width": 640, "height": 400})
-        await page.set_content(html)
-        await page.screenshot(path=QUEUE_IMG_PATH)
-        await browser.close()
+    tmp_path = os.path.join(CACHE_DIR, "queue_render.html")
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        f.write(rendered_html)
 
-    print(f"[EMBED] Queue image updated at {QUEUE_IMG_PATH}")
-    return QUEUE_IMG_PATH
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(
+                headless=True,
+                args=["--no-sandbox", "--disable-setuid-sandbox"]
+            )
+            page = await browser.new_page()
+            await page.goto(f"file://{tmp_path}")
+            await page.screenshot(path=CACHE_IMG, full_page=True)
+            await browser.close()
+
+        print(f"[EMBED] Updated queue preview at {CACHE_IMG}")
+        return CACHE_IMG
+    except Exception as e:
+        print(f"[EMBED] Failed to render image queue: {e}")
+        return None
 
 
-# === Routes ===
+
+# === Route Handler ===
 async def queue_embed_handler(request):
-    """
-    Handle GET /embed/queue
-    If the cache image is older than RENDER_COOLDOWN, regenerate it.
-    Then return the PNG directly.
-    """
-    global _last_render_time
-    now = time.time()
+    """Display a simple HTML or PNG of the current playback queue."""
+    mode = request.query.get("format", "html")
 
-    # Only regenerate if needed
-    if not os.path.exists(QUEUE_IMG_PATH) or (now - _last_render_time) > RENDER_COOLDOWN:
-        await generate_queue_image()
-        _last_render_time = now
+    if mode == "image":
+        if not os.path.exists(CACHE_IMG):
+            await generate_queue_image()
+        return web.FileResponse(CACHE_IMG)
 
-    return web.FileResponse(QUEUE_IMG_PATH)
+    # Otherwise render a live HTML preview using Jinja2
+    html = await render_queue_html()
+    return web.Response(text=html, content_type="text/html")
 
 
 async def queue_html_preview(request):
