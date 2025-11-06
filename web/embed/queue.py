@@ -46,7 +46,8 @@ async def generate_queue_image():
             )
             page = await browser.new_page()
             await page.goto(f"file://{tmp_path}")
-            await page.screenshot(path=CACHE_IMG, full_page=True)
+            await page.set_viewport_size({"width": 600, "height": 800})
+            await page.screenshot(path=CACHE_IMG)
             await browser.close()
 
         print(f"[EMBED] Updated queue preview at {CACHE_IMG}")
@@ -63,6 +64,8 @@ async def queue_embed_handler(request):
     mode = request.query.get("format", "html")
 
     if mode == "image":
+        
+        
         if not os.path.exists(CACHE_IMG):
             await generate_queue_image()
         return web.FileResponse(CACHE_IMG)
