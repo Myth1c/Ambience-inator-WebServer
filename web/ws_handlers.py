@@ -73,6 +73,7 @@ async def forward_to_bots(payload):
 async def forward_to_clients(payload):
     for ws in list(connections):
         try:
+            print("[BOT→WEB] Forwarding payload to clients:", payload)
             await ws.send_str(json.dumps(payload))
         except Exception:
             connections.discard(ws)
