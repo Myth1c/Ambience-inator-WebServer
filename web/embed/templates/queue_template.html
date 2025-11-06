@@ -74,6 +74,9 @@
         }
 
         .current-song-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             border: 1px solid #4caf50;
             background: #152415;
             box-shadow: 0 0 14px rgba(76,175,80,0.4);
@@ -100,11 +103,11 @@
         }
 
         /* ===== CURRENT SONG TEXT ===== */
-        .current-song-text {
-            font-family: monospace;
+        .track-name {
+            font-family: monospace !important;
             color: #4caf50;
             font-size: 1rem;
-            padding: 6px;
+            padding: 0px;
         }
 
         /* ===== FOOTER ===== */
@@ -135,7 +138,7 @@
                 <ul class="queue-list">
                     {% for i in queue.previous_stack %}
                         {% if i < queue.tracks|length %}
-                            <li style="color:#aaa;">{{ queue.tracks[i].name }}</li>
+                            <li class="track-name" style="color:#aaa;">{{ queue.tracks[i].name }}</li>
                         {% endif %}
                     {% endfor %}
                 </ul>
@@ -144,7 +147,7 @@
 
             {# ===== CURRENT SONG ===== #}
             <div class="queue-subsection current-song-box">
-                <div class="current-song-text">
+                <div class="current-song-text track-name">
                     {% if queue.tracks and queue.current_index >= 0 and queue.current_index < queue.tracks|length %}
                         {{ queue.tracks[queue.current_index].name }}
                     {% else %}
@@ -164,7 +167,7 @@
             <div class="queue-subsection next-glow">
                 <ul class="queue-list">
                     {% for track in next_tracks %}
-                        <li style="color:#ccc;">{{ track.name }}</li>
+                        <li class="track-name" style="color:#ccc;">{{ track.name }}</li>
                     {% endfor %}
                 </ul>
             </div>
