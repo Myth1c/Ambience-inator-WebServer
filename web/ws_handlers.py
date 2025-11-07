@@ -36,13 +36,13 @@ async def ipc_bot_handler(request):
     await ws.prepare(request)
 
     connected_bots.add(ws)
-    print("[WEB] Bot connected via IPC", flush=True)
+    print("[WEB] Bot connected via IPC")
     await ws.send_json({"type": "server_ack", "message": "Connected to Render backend"})
 
     try:
         async for msg in ws:
             if msg.type == web.WSMsgType.TEXT:
-                print("[WEB] From bot:", msg.data, flush=True)
+                print("[WEB] From bot:", msg.data)
                 try:
                     payload = json.loads(msg.data)
                 except json.JSONDecodeError:
@@ -52,10 +52,10 @@ async def ipc_bot_handler(request):
                 await forward_to_clients(payload)
                 
             elif msg.type == web.WSMsgType.ERROR:
-                print("[WEB] IPC WS error:", ws.exception(), flush=True)
+                print("[WEB] IPC WS error:", ws.exception())
     finally:
         connected_bots.discard(ws)
-        print("[WEB] Bot disconnected", flush=True)
+        print("[WEB] Bot disconnected")
 
     return ws
 
