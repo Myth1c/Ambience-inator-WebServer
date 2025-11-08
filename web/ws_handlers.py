@@ -1,6 +1,6 @@
 # web/ws_handlers.py
 
-import aiohttp, json, asyncio
+import aiohttp, json, asyncio, os
 
 from aiohttp import web
 
@@ -14,6 +14,12 @@ async def websocket_handler(request):
     connections.add(ws)
     print("[WS] Client connected")
     
+    auth_cookie = request.cookies.get("auth") or request.headers.get("Authorization")
+
+    authorized = (auth_cookie == os.getenv("AUTH_KEY"))
+    if not authorized:
+        print("[WS] Unauthorized client connected — command handling disabled.")
+    
     try:
         async for msg in ws:
             if msg.type == aiohttp.WSMsgType.TEXT:
@@ -21,7 +27,14 @@ async def websocket_handler(request):
                 print("[WS] Received: ", data)
                 
                 # Forward client command to bots
-                await forward_to_bots(data)                
+                if authorized:
+                    await forward_to_bots(data)       
+                else:
+                    await ws.send_json({
+                        "ok": False,
+                        "command": data.get("command"),
+                        "ERROR": "UNAUTHORIZED"          
+                    })
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 print("[WS] Error: ", ws.exception())
                                 
