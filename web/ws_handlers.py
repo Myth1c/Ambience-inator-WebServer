@@ -111,24 +111,28 @@ async def ipc_bot_handler(request):
         "message": "Connected to Render backend"
     })
 
-    try:
-        async for msg in ws:
+    async for msg in ws:
+        try:
             if msg.type == web.WSMsgType.TEXT:
                 try:
                     payload = json.loads(msg.data)
                 except json.JSONDecodeError:
+                    print("[WEB] Bad JSON from bot")
                     continue
 
                 print("[WEB] From bot:", payload)
 
-                await forward_to_clients(payload)
+                try:
+                    await forward_to_clients(payload)
+                except Exception as e:
+                    print("[WEB] ERROR in forward_to_clients:", e)
+                    continue
 
             elif msg.type == web.WSMsgType.ERROR:
                 print("[WEB] IPC WS error:", ws.exception())
 
-    finally:
-        connected_bots.discard(ws)
-        print("[WEB] Bot disconnected")
+        except Exception as e:
+            print("[WEB] Unhandled WS error:", e)
 
     return ws
 
